@@ -9,6 +9,7 @@ import play.mvc.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class BankTestController extends Controller {
@@ -30,11 +31,15 @@ public class BankTestController extends Controller {
 
     public CompletionStage<Result> getAllBranches() {
         Map<String, String[]> params = request().queryString();
-        String city = params.get("city")[0];
-        String bankName = params.get("bankName")[0];
-        return bankService.getAllBranches(city, bankName)
-        .thenApply(branches -> {
-            return ok(Json.toJson(branches));
-        });
+        try{
+            String city = params.get("city")[0];
+            String bankName = params.get("bankName")[0];
+            return bankService.getAllBranches(city, bankName)
+                    .thenApply(branches -> {
+                        return ok(Json.toJson(branches));
+                    });
+        } catch (Exception ex){
+            return CompletableFuture.completedFuture(badRequest());
+        }
     }
 }
